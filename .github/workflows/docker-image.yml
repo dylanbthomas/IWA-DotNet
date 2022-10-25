@@ -19,7 +19,7 @@ jobs:
       
     - name: Build Application
 #      run: msbuild IWA.NET.sln /p:Configuration=Debug /t:Clean,Build
-      run: msbuild IWA.NET.sln /t:Clean,Restore,Build
+#      run: msbuild IWA.NET.sln /t:Clean,Restore,Build
 
 #    - name: Docker Login
 #      uses: docker/login-action@v2
