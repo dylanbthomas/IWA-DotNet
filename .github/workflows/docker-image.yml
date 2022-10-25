@@ -17,7 +17,7 @@ jobs:
       uses: microsoft/setup-msbuild@v1
         
       
-    - name: Build Application
+#    - name: Build Application
 #      run: msbuild IWA.NET.sln /p:Configuration=Debug /t:Clean,Build
 #      run: msbuild IWA.NET.sln /t:Clean,Restore,Build
 
