@@ -13,9 +13,9 @@ COPY ["InsecureWebApp/Files", "InsecureWebApp/Files"]
 RUN dotnet restore "InsecureWebApp/InsecureWebApp.csproj"
 COPY . .
 WORKDIR "/src/InsecureWebApp"
-#RUN dotnet build "InsecureWebApp.csproj" -c Release -o /app/build
+RUN dotnet build "InsecureWebApp.csproj" -c Release -o /app/build
 
-#FROM build AS publish
+FROM build AS publish
 RUN dotnet publish "InsecureWebApp.csproj" -c Release -o /app/publish
 
 FROM base AS final
