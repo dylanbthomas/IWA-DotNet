@@ -13,8 +13,8 @@ jobs:
     - name: Check Out Source Code
       uses: actions/checkout@v3
     
-    - name: Setup MSBuild
-      uses: microsoft/setup-msbuild@v1
+#    - name: Setup MSBuild
+#      uses: microsoft/setup-msbuild@v1
 
     - name: Docker Login
       uses: docker/login-action@v2
