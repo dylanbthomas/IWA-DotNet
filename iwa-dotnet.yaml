@@ -1,0 +1,146 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: db
+  name: db
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: db
+  strategy: {}
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert
+        kompose.version: 1.26.0 (40646f47)
+      creationTimestamp: null
+      labels:
+        app: db
+    spec:
+      containers:
+        - env:
+            - name: ACCEPT_EULA
+              value: "Y"
+            - name: SA_PASSWORD
+              value: novell@123
+          image: mcr.microsoft.com/mssql/server:2017-latest
+          name: db
+          ports:
+            - containerPort: 1433
+          resources: {}
+      restartPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: db
+  name: db
+spec:
+  ports:
+    - name: "1433"
+      port: 1433
+      targetPort: 1433
+  selector:
+    app: db
+status:
+  loadBalancer: {}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: insecurewebapp
+  name: insecurewebapp
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: insecurewebapp
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert
+        kompose.version: 1.26.0 (40646f47)
+      creationTimestamp: null
+      labels:
+        app: insecurewebapp
+    spec:
+      containers:
+        - env:
+            - name: ASPNETCORE_ENVIRONMENT
+              value: Docker
+            - name: ASPNETCORE_URLS
+              value: http://+:80
+            - name: ConnectionStrings:DefaultConnection
+              value: Server=db;Database=aspnet-iwa-dev;User=sa;Password=novell@123;
+          image: fortifydocker/iwa-dotnet:latest
+          name: insecurewebapp
+          ports:
+            - containerPort: 80
+            - containerPort: 443
+          resources: {}
+          volumeMounts:
+            - mountPath: /root/.microsoft/usersecrets
+              name: insecurewebapp-claim0
+              readOnly: true
+            - mountPath: /root/.aspnet/https
+              name: insecurewebapp-claim1
+              readOnly: true
+      restartPolicy: Always
+      volumes:
+        - name: insecurewebapp-claim0
+          persistentVolumeClaim:
+            claimName: insecurewebapp-claim0
+            readOnly: true
+        - name: insecurewebapp-claim1
+          persistentVolumeClaim:
+            claimName: insecurewebapp-claim1
+            readOnly: true
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: insecurewebapp
+  name: insecurewebapp
+spec:
+  ports:
+    - name: "80"
+      port: 80
+      targetPort: 80
+    - name: "443"
+      port: 443
+      targetPort: 443
+  selector:
+    app: insecurewebapp
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  labels:
+    app: insecurewebapp-claim0
+  name: insecurewebapp-claim0
+spec:
+  accessModes:
+    - ReadOnlyMany
+  resources:
+    requests:
+      storage: 100Mi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  labels:
+    app: insecurewebapp-claim1
+  name: insecurewebapp-claim1
+spec:
+  accessModes:
+    - ReadOnlyMany
+  resources:
+    requests:
+      storage: 100Mi
