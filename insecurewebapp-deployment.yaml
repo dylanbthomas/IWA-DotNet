@@ -1,0 +1,58 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert
+    kompose.version: 1.26.0 (40646f47)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: insecurewebapp
+  name: insecurewebapp
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: insecurewebapp
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert
+        kompose.version: 1.26.0 (40646f47)
+      creationTimestamp: null
+      labels:
+        io.kompose.service: insecurewebapp
+    spec:
+      containers:
+        - env:
+            - name: ASPNETCORE_ENVIRONMENT
+              value: Docker
+            - name: ASPNETCORE_URLS
+              value: http://+:80
+            - name: ConnectionStrings:DefaultConnection
+              value: Server=db;Database=aspnet-iwa-dev;User=sa;Password=novell@123;
+          image: fortifydocker/iwa-dotnet:latest
+          name: insecurewebapp
+          ports:
+            - containerPort: 80
+            - containerPort: 443
+          resources: {}
+          volumeMounts:
+            - mountPath: /root/.microsoft/usersecrets
+              name: insecurewebapp-claim0
+              readOnly: true
+            - mountPath: /root/.aspnet/https
+              name: insecurewebapp-claim1
+              readOnly: true
+      restartPolicy: Always
+      volumes:
+        - name: insecurewebapp-claim0
+          persistentVolumeClaim:
+            claimName: insecurewebapp-claim0
+            readOnly: true
+        - name: insecurewebapp-claim1
+          persistentVolumeClaim:
+            claimName: insecurewebapp-claim1
+            readOnly: true
+status: {}
